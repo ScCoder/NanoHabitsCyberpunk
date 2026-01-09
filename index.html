@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>НаноПривычки</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: rgba(15, 15, 25, 0.8);
+            --border: rgba(0, 245, 255, 0.15);
+            --text: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.5);
+            --cyan: #00F5FF;
+            --magenta: #FF00E5;
+            --green: #00FF88;
+            --yellow: #FFE500;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #root {
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--bg) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle-field {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--cyan);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particle-float 5s ease-in-out infinite;
+        }
+
+        @keyframes particle-float {
+            0%, 100% { opacity: 0; transform: translateY(0); }
+            50% { opacity: 0.6; transform: translateY(-30px); }
+        }
+
+        .app-header {
+            position: relative;
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(0, 245, 255, 0.05) 0%, transparent 100%);
+            z-index: 10;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: rgba(0, 245, 255, 0.1);
+        }
+
+        .logo-diamond {
+            font-size: 20px;
+            color: var(--cyan);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 10px var(--cyan); }
+            50% { text-shadow: 0 0 20px var(--cyan), 0 0 30px var(--cyan); }
+        }
+
+        .logo-text h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--text);
+        }
+
+        .logo-text h1 span {
+            color: var(--cyan);
+        }
+
+        .logo-version {
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            margin-top: 2px;
+        }
+
+        .stats-btn, .back-btn {
+            width: 48px;
+            height: 48px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--cyan);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+        }
+
+        .stats-btn:active, .back-btn:active {
+            background: rgba(0, 245, 255, 0.1);
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .time-display {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            clip-path: polygon(2% 0, 98% 0, 100% 50%, 98% 100%, 2% 100%, 0 50%);
+        }
+
+        .time-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+        }
+
+        .date-value {
+            font-size: 14px;
+            color: var(--text-dim);
+            letter-spacing: 0.3em;
+            margin-top: 4px;
+        }
+
+        .progress-container {
+            padding: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+        }
+
+        .progress-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--cyan);
+        }
+
+        .progress-track {
+            height: 8px;
+            background: rgba(0, 245, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan), var(--magenta));
+            position: relative;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-glow {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--cyan);
+            border-radius: 50%;
+            filter: blur(10px);
+            animation: glow-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .progress-markers {
+            position: absolute;
+            inset: 0;
+        }
+
+        .marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-percent {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--cyan);
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        .main-content {
+            padding: 20px;
+            padding-bottom: 120px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-hex {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: var(--bg-card);
+        }
+
+        .empty-hex span {
+            font-size: 40px;
+            color: var(--cyan);
+            opacity: 0.5;
+        }
+
+        .empty-state h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .habits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .habit-card {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            overflow: hidden;
+            animation: card-enter 0.4s ease-out backwards;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+        }
+
+        @keyframes card-enter {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+        }
+
+        .habit-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .habit-card.completed {
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .habit-card.completed::before {
+            background: var(--green);
+            box-shadow: 0 0 15px var(--green);
+        }
+
+        .card-glow {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .card-scanline {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.1) 2px,
+                rgba(0, 0, 0, 0.1) 4px
+            );
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .complete-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .btn-frame {
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .complete-btn:active .btn-frame {
+            border-color: var(--accent);
+            background: rgba(0, 245, 255, 0.1);
+        }
+
+        .complete-btn.done .btn-frame {
+            border-color: var(--green);
+            background: rgba(0, 255, 136, 0.2);
+            animation: check-pulse 0.4s ease-out;
+        }
+
+        @keyframes check-pulse {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .btn-frame svg {
+            width: 20px;
+            height: 20px;
+            color: var(--green);
+            filter: drop-shadow(0 0 5px var(--green));
+        }
+
+        .btn-empty {
+            width: 8px;
+            height: 8px;
+            border: 2px solid var(--text-dim);
+            transform: rotate(45deg);
+        }
+
+        .habit-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .habit-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.02em;
+            margin-bottom: 4px;
+            transition: all 0.3s;
+        }
+
+        .habit-name.done {
+            color: var(--text-dim);
+            text-decoration: line-through;
+            text-decoration-color: var(--green);
+        }
+
+        .habit-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .habit-schedule {
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+        }
+
+        .habit-streak {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--yellow);
+            font-weight: 600;
+        }
+
+        .streak-icon {
+            font-size: 14px;
+        }
+
+        .streak-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+        }
+
+        .habit-actions {
+            position: relative;
+        }
+
+        .menu-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .menu-btn:active {
+            color: var(--cyan);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 4px;
+            min-width: 140px;
+            z-index: 100;
+            animation: dropdown-enter 0.2s ease-out;
+        }
+
+        @keyframes dropdown-enter {
+            from { opacity: 0; transform: translateY(-8px); }
+        }
+
+        .dropdown-menu button {
+            width: 100%;
+            padding: 10px 12px;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            color: #FF3366;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .dropdown-menu button:active {
+            background: rgba(255, 51, 102, 0.1);
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 32px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            z-index: 50;
+        }
+
+        .fab-inner {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--cyan), var(--magenta));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            transition: all 0.3s;
+        }
+
+        .fab:active .fab-inner {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+        }
+
+        .fab-ring {
+            position: absolute;
+            inset: -4px;
+            border: 2px solid var(--cyan);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            animation: ring-rotate 3s linear infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes ring-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+        }
+
+        .modal-content {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            padding: 24px;
+            width: 100%;
+            max-width: 480px;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            clip-path: polygon(0 20px, 20px 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .title-bracket {
+            color: var(--cyan);
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-btn:active {
+            border-color: #FF3366;
+            color: #FF3366;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .cyber-input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 16px;
+            letter-spacing: 0.02em;
+            transition: all 0.2s;
+        }
+
+        .cyber-input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+        }
+
+        .cyber-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .toggle-container {
+            display: flex;
+            gap: 12px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toggle-btn.active {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: rgba(0, 245, 255, 0.1);
+        }
+
+        .toggle-indicator {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 6px;
+            height: 6px;
+            background: var(--cyan);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .toggle-btn.active .toggle-indicator {
+            opacity: 1;
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        .interval-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+
+        .interval-text {
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+        }
+
+        .interval-spinner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .interval-spinner button {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--cyan);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .interval-spinner button:active {
+            border-color: var(--cyan);
+            background: rgba(0, 245, 255, 0.1);
+        }
+
+        .interval-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--cyan);
+            min-width: 60px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+        }
+
+        .weekdays-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .weekday-btn {
+            aspect-ratio: 1;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .weekday-btn.active {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: rgba(0, 245, 255, 0.1);
+        }
+
+        .weekday-btn.active::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid var(--cyan);
+            opacity: 0.3;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid var(--cyan);
+            background: transparent;
+            color: var(--cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+        }
+
+        .submit-btn:active:not(:disabled) {
+            background: var(--cyan);
+            color: var(--bg);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-icon {
+            font-size: 10px;
+        }
+
+        .praise-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .praise-modal {
+            text-align: center;
+            animation: praise-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes praise-enter {
+            from { transform: scale(0.5); opacity: 0; }
+        }
+
+        .praise-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 32px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .praise-ring::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 3px solid var(--green);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            animation: ring-spin 2s linear infinite;
+        }
+
+        @keyframes ring-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .praise-ring-inner {
+            position: absolute;
+            inset: 10px;
+            background: rgba(0, 255, 136, 0.1);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        .praise-check {
+            width: 50px;
+            height: 50px;
+            color: var(--green);
+            filter: drop-shadow(0 0 20px var(--green));
+        }
+
+        .praise-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 40px var(--cyan);
+            margin-bottom: 8px;
+        }
+
+        .praise-subtitle {
+            font-size: 14px;
+            color: var(--green);
+            letter-spacing: 0.3em;
+        }
+
+        .cyber-confetti {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            top: -20px;
+            animation: confetti-drop linear forwards;
+        }
+
+        @keyframes confetti-drop {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            padding: 20px 16px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .stat-card.featured {
+            border-color: var(--cyan);
+            background: rgba(0, 245, 255, 0.05);
+        }
+
+        .stat-icon {
+            font-size: 20px;
+            color: var(--cyan);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-card.featured .stat-value {
+            color: var(--cyan);
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+            margin-top: 4px;
+        }
+
+        .habits-analytics {
+            padding: 0 20px 40px;
+        }
+
+        .analytics-card {
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            padding: 20px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+            animation: card-enter 0.4s ease-out backwards;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+        }
+
+        .analytics-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .analytics-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .analytics-indicator {
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            transform: rotate(45deg);
+            box-shadow: 0 0 10px var(--accent);
+            flex-shrink: 0;
+        }
+
+        .analytics-info {
+            flex: 1;
+        }
+
+        .analytics-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .analytics-info span {
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-item-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+            margin-bottom: 8px;
+        }
+
+        .stat-item-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .stat-item-value.highlighted {
+            color: var(--yellow);
+            text-shadow: 0 0 15px rgba(255, 229, 0, 0.5);
+        }
+
+        .stat-icon-small {
+            font-size: 16px;
+            color: var(--cyan);
+        }
+
+        .stat-item-value.highlighted .stat-icon-small {
+            color: var(--yellow);
+        }
+
+        .stat-divider {
+            width: 1px;
+            background: var(--border);
+        }
+
+        .heatmap-container {
+            margin-bottom: 16px;
+        }
+
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+
+        .heatmap-cell.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .heatmap-cell.today {
+            border-color: var(--text);
+            border-width: 2px;
+        }
+
+        .heatmap-legend {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+        }
+
+        .completion-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .completion-bar-track {
+            flex: 1;
+            height: 6px;
+            background: rgba(0, 245, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .completion-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--cyan));
+            position: relative;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .completion-bar-glow {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: var(--cyan);
+            border-radius: 50%;
+            filter: blur(8px);
+            animation: glow-pulse 1s ease-in-out infinite;
+        }
+
+        .completion-percent {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--cyan);
+            min-width: 48px;
+            text-align: right;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script>
+        // Vanilla JS implementation
+        const STORAGE_KEY = 'nanoHabitsV2';
+        const COLORS = ['#00F5FF', '#FF00E5', '#00FF88', '#FFE500'];
+        const PRAISES = ['ОТЛИЧНО!', 'СУПЕР!', 'КРУТО!', 'МОЛОДЕЦ!', 'ВЕЛИКОЛЕПНО!'];
+        const DAYS_SHORT = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+
+        let habits = [];
+        let currentView = 'main';
+        
+        // Initialize
+        function init() {
+            loadHabits();
+            renderParticles();
+            render();
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        function loadHabits() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            habits = saved ? JSON.parse(saved) : [];
+        }
+
+        function saveHabits() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+        }
+
+        function getTodayStr() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function isHabitDueToday(habit) {
+            const today = new Date();
+            const dayOfWeek = (today.getDay() + 6) % 7;
+            
+            if (habit.scheduleType === 'weekdays') {
+                return habit.weekdays.includes(dayOfWeek);
+            }
+            
+            if (habit.completedDates.length === 0) return true;
+            
+            const lastCompleted = new Date(habit.completedDates[habit.completedDates.length - 1]);
+            const daysSince = Math.floor((today - lastCompleted) / (1000 * 60 * 60 * 24));
+            return daysSince >= habit.interval;
+        }
+
+        function isCompletedToday(habit) {
+            return habit.completedDates.includes(getTodayStr());
+        }
+
+        function getCurrentStreak(habit) {
+            if (habit.completedDates.length === 0) return 0;
+            
+            const sortedDates = [...habit.completedDates].sort().reverse();
+            let streak = 0;
+            let currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+            
+            for (let i = 0; i < sortedDates.length; i++) {
+                const completedDate = new Date(sortedDates[i]);
+                completedDate.setHours(0, 0, 0, 0);
+                const daysDiff = Math.floor((currentDate - completedDate) / (1000 * 60 * 60 * 24));
+                
+                if (daysDiff === streak) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
+
+        function completeHabit(habitId) {
+            const todayStr = getTodayStr();
+            habits = habits.map(h => {
+                if (h.id === habitId && !h.completedDates.includes(todayStr)) {
+                    return { ...h, completedDates: [...h.completedDates, todayStr] };
+                }
+                return h;
+            });
+            saveHabits();
+            showPraise();
+            render();
+        }
+
+        function deleteHabit(habitId) {
+            habits = habits.filter(h => h.id !== habitId);
+            saveHabits();
+            render();
+        }
+
+        function addHabit(habit) {
+            habits.push(habit);
+            saveHabits();
+            render();
+        }
+
+        function updateTime() {
+            const timeEl = document.querySelector('.time-value');
+            const dateEl = document.querySelector('.date-value');
+            if (timeEl && dateEl) {
+                const now = new Date();
+                timeEl.textContent = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                dateEl.textContent = now.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            }
+        }
+
+        function showPraise() {
+            const praise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
+            const overlay = document.createElement('div');
+            overlay.className = 'praise-overlay';
+            overlay.innerHTML = `
+                ${renderConfetti()}
+                <div class="praise-modal">
+                    <div class="praise-ring">
+                        <div class="praise-ring-inner"></div>
+                        <svg class="praise-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h2 class="praise-text">${praise}</h2>
+                    <div class="praise-subtitle">МИССИЯ ВЫПОЛНЕНА</div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            setTimeout(() => overlay.remove(), 2500);
+            overlay.onclick = () => overlay.remove();
+        }
+
+        function renderConfetti() {
+            const confettiColors = ['#00F5FF', '#FF00E5', '#00FF88', '#FFE500', '#FF3366'];
+            let html = '<div class="cyber-confetti">';
+            for (let i = 0; i < 80; i++) {
+                const left = Math.random() * 100;
+                const delay = Math.random() * 0.5;
+                const duration = 1 + Math.random() * 1.5;
+                const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                const size = 4 + Math.random() * 8;
+                html += `<div class="confetti-piece" style="left:${left}%;animation-delay:${delay}s;animation-duration:${duration}s;background:${color};box-shadow:0 0 10px ${color};width:${size}px;height:${size}px"></div>`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function renderParticles() {
+            const container = document.createElement('div');
+            container.className = 'particle-field';
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = particle.style.height = (1 + Math.random() * 2) + 'px';
+                particle.style.animationDuration = (3 + Math.random() * 4) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(particle);
+            }
+            document.getElementById('root').appendChild(container);
+        }
+
+        function showAddModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                            <span class="title-bracket">[</span>
+                            НОВЫЙ ПРОТОКОЛ
+                            <span class="title-bracket">]</span>
+                        </div>
+                        <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ИДЕНТИФИКАТОР</label>
+                        <input type="text" id="habitName" class="cyber-input" placeholder="Введите название..." autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ЦИКЛ ПОВТОРЕНИЯ</label>
+                        <div class="toggle-container">
+                            <button class="toggle-btn active" data-type="interval">
+                                <span class="toggle-indicator"></span>
+                                ИНТЕРВАЛ
+                            </button>
+                            <button class="toggle-btn" data-type="weekdays">
+                                <span class="toggle-indicator"></span>
+                                ДНИ НЕДЕЛИ
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group" id="intervalSection">
+                        <div class="interval-control">
+                            <span class="interval-text">КАЖДЫЕ</span>
+                            <div class="interval-spinner">
+                                <button onclick="changeInterval(-1)">−</button>
+                                <span class="interval-value" id="intervalValue">01</span>
+                                <button onclick="changeInterval(1)">+</button>
+                            </div>
+                            <span class="interval-text" id="intervalUnit">ДЕНЬ</span>
+                        </div>
+                    </div>
+                    <div class="form-group hidden" id="weekdaysSection">
+                        <div class="weekdays-grid">
+                            ${DAYS_SHORT.map((day, i) => `
+                                <button class="weekday-btn" data-day="${i}">
+                                    <span class="weekday-text">${day}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <button class="submit-btn" onclick="submitHabit()">
+                        <span class="btn-text">АКТИВИРОВАТЬ</span>
+                        <span class="btn-icon">▶</span>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            modal.onclick = () => modal.remove();
+            
+            // Toggle handlers
+            modal.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.onclick = function() {
+                    modal.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const type = this.dataset.type;
+                    if (type === 'interval') {
+                        modal.querySelector('#intervalSection').classList.remove('hidden');
+                        modal.querySelector('#weekdaysSection').classList.add('hidden');
+                    } else {
+                        modal.querySelector('#intervalSection').classList.add('hidden');
+                        modal.querySelector('#weekdaysSection').classList.remove('hidden');
+                    }
+                };
+            });
+            
+            // Weekday handlers
+            modal.querySelectorAll('.weekday-btn').forEach(btn => {
+                btn.onclick = function() {
+                    this.classList.toggle('active');
+                };
+            });
+        }
+
+        window.changeInterval = function(delta) {
+            const valueEl = document.getElementById('intervalValue');
+            const unitEl = document.getElementById('intervalUnit');
+            let value = parseInt(valueEl.textContent);
+            value = Math.max(1, value + delta);
+            valueEl.textContent = String(value).padStart(2, '0');
+            unitEl.textContent = value === 1 ? 'ДЕНЬ' : value < 5 ? 'ДНЯ' : 'ДНЕЙ';
+        };
+
+        window.submitHabit = function() {
+            const name = document.getElementById('habitName').value.trim();
+            if (!name) return;
+            
+            const scheduleType = document.querySelector('.toggle-btn.active').dataset.type;
+            const interval = scheduleType === 'interval' ? parseInt(document.getElementById('intervalValue').textContent) : null;
+            const weekdays = scheduleType === 'weekdays' ? 
+                Array.from(document.querySelectorAll('.weekday-btn.active')).map(btn => parseInt(btn.dataset.day)) : null;
+            
+            if (scheduleType === 'weekdays' && weekdays.length === 0) return;
+            
+            const habit = {
+                id: Date.now(),
+                name,
+                scheduleType,
+                interval,
+                weekdays,
+                completedDates: [],
+                createdAt: new Date().toISOString(),
+                color: COLORS[Math.floor(Math.random() * COLORS.length)]
+            };
+            
+            addHabit(habit);
+            document.querySelector('.modal-overlay').remove();
+        };
+
+        function render() {
+            const root = document.getElementById('root');
+            
+            if (currentView === 'history') {
+                renderHistory();
+            } else {
+                renderMain();
+            }
+        }
+
+        function renderMain() {
+            const todaysHabits = habits.filter(h => isHabitDueToday(h) || isCompletedToday(h));
+            const completedToday = todaysHabits.filter(h => isCompletedToday(h)).length;
+            const progress = todaysHabits.length > 0 ? (completedToday / todaysHabits.length) * 100 : 0;
+            
+            document.getElementById('root').innerHTML = `
+                <div class="grid-overlay"></div>
+                <div class="vignette"></div>
+                <header class="app-header">
+                    <div class="header-row">
+                        <div class="logo-section">
+                            <div class="logo-icon">
+                                <span class="logo-diamond">◈</span>
+                            </div>
+                            <div class="logo-text">
+                                <h1>НАНО<span>ПРИВЫЧКИ</span></h1>
+                                <div class="logo-version">SYS.VERSION 2.0</div>
+                            </div>
+                        </div>
+                        <button class="stats-btn" onclick="showHistory()">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3v18h18"/>
+                                <path d="M18 9l-5 5-4-4-3 3"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="time-display">
+                        <div class="time-value">00:00:00</div>
+                        <div class="date-value">01.01.2024</div>
+                    </div>
+                    ${todaysHabits.length > 0 ? `
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span class="progress-label">ПРОГРЕСС СЕССИИ</span>
+                                <span class="progress-value">${completedToday}/${todaysHabits.length}</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-bar" style="width: ${progress}%">
+                                    <div class="progress-glow"></div>
+                                </div>
+                                <div class="progress-markers">
+                                    ${[0, 25, 50, 75, 100].map(p => `<div class="marker" style="left: ${p}%"></div>`).join('')}
+                                </div>
+                            </div>
+                            <div class="progress-percent">${Math.round(progress)}%</div>
+                        </div>
+                    ` : ''}
+                </header>
+                <main class="main-content">
+                    ${todaysHabits.length === 0 ? `
+                        <div class="empty-state">
+                            <div class="empty-hex"><span>◇</span></div>
+                            <h2>НЕТ АКТИВНЫХ ПРОТОКОЛОВ</h2>
+                            <p>Инициализируйте новый протокол для начала работы</p>
+                        </div>
+                    ` : `
+                        <div class="habits-list">
+                            ${todaysHabits.map((habit, index) => renderHabitCard(habit, index)).join('')}
+                        </div>
+                    `}
+                </main>
+                <button class="fab" onclick="showAddModal()">
+                    <div class="fab-inner">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
+                    <div class="fab-ring"></div>
+                </button>
+            `;
+            
+            renderParticles();
+            updateTime();
+        }
+
+        function renderHabitCard(habit, index) {
+            const completed = isCompletedToday(habit);
+            const scheduleText = habit.scheduleType === 'interval' 
+                ? (habit.interval === 1 ? 'ЕЖЕДНЕВНО' : `КАЖДЫЕ ${habit.interval} Д.`)
+                : habit.weekdays.map(d => DAYS_SHORT[d]).join(' · ');
+            const streak = habit.completedDates.length;
+            
+            return `
+                <div class="habit-card ${completed ? 'completed' : ''}" style="--accent: ${habit.color}; animation-delay: ${index * 0.1}s">
+                    <div class="card-glow"></div>
+                    <div class="card-scanline"></div>
+                    <button class="complete-btn ${completed ? 'done' : ''}" onclick="completeHabit(${habit.id})">
+                        <div class="btn-frame">
+                            ${completed ? `
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            ` : '<div class="btn-empty"></div>'}
+                        </div>
+                    </button>
+                    <div class="habit-info">
+                        <h3 class="habit-name ${completed ? 'done' : ''}">${habit.name}</h3>
+                        <div class="habit-meta">
+                            <span class="habit-schedule">${scheduleText}</span>
+                            ${streak > 0 ? `
+                                <span class="habit-streak">
+                                    <span class="streak-icon">⚡</span>
+                                    <span class="streak-value">${streak}</span>
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="habit-actions">
+                        <button class="menu-btn" onclick="toggleMenu(event, ${habit.id})">
+                            <svg width="4" height="16" viewBox="0 0 4 16">
+                                <circle cx="2" cy="2" r="2" fill="currentColor"/>
+                                <circle cx="2" cy="8" r="2" fill="currentColor"/>
+                                <circle cx="2" cy="14" r="2" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.toggleMenu = function(event, habitId) {
+            event.stopPropagation();
+            const existing = document.querySelector('.dropdown-menu');
+            if (existing) {
+                existing.remove();
+                return;
+            }
+            
+            const menu = document.createElement('div');
+            menu.className = 'dropdown-menu';
+            menu.innerHTML = `
+                <button onclick="deleteHabit(${habitId}); event.target.closest('.dropdown-menu').remove();">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/>
+                    </svg>
+                    УДАЛИТЬ
+                </button>
+            `;
+            event.target.closest('.habit-actions').appendChild(menu);
+            
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu() {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                });
+            }, 10);
+        };
+
+        window.showHistory = function() {
+            currentView = 'history';
+            renderHistory();
+        };
+
+        window.hideHistory = function() {
+            currentView = 'main';
+            render();
+        };
+
+        function renderHistory() {
+            const totalCompletions = habits.reduce((sum, h) => sum + h.completedDates.length, 0);
+            const bestStreak = Math.max(0, ...habits.map(h => getCurrentStreak(h)));
+            
+            const last30Days = [];
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                last30Days.push(date.toISOString().split('T')[0]);
+            }
+            
+            document.getElementById('root').innerHTML = `
+                <div class="grid-overlay"></div>
+                <div class="vignette"></div>
+                <header class="app-header">
+                    <div class="header-row">
+                        <button class="back-btn" onclick="hideHistory()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <div class="logo-section">
+                            <div class="logo-icon">
+                                <span class="logo-diamond">◈</span>
+                            </div>
+                            <div class="logo-text">
+                                <h1>АНАЛИТИКА</h1>
+                                <div class="logo-version">СТАТИСТИКА ПРОТОКОЛОВ</div>
+                            </div>
+                        </div>
+                        <div style="width: 48px"></div>
+                    </div>
+                </header>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">◈</div>
+                        <div class="stat-value">${String(habits.length).padStart(2, '0')}</div>
+                        <div class="stat-label">ПРОТОКОЛОВ</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">◉</div>
+                        <div class="stat-value">${String(totalCompletions).padStart(2, '0')}</div>
+                        <div class="stat-label">ВЫПОЛНЕНО</div>
+                    </div>
+                    <div class="stat-card featured">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value">${String(bestStreak).padStart(2, '0')}</div>
+                        <div class="stat-label">МАКС. СЕРИЯ</div>
+                    </div>
+                </div>
+                <div class="habits-analytics">
+                    ${habits.map((habit, index) => {
+                        const totalComp = habit.completedDates.length;
+                        const streak = getCurrentStreak(habit);
+                        const completionRate = Math.round((habit.completedDates.filter(d => last30Days.includes(d)).length / 30) * 100);
+                        
+                        return `
+                            <div class="analytics-card" style="--accent: ${habit.color}; animation-delay: ${index * 0.1}s">
+                                <div class="card-glow"></div>
+                                <div class="card-scanline"></div>
+                                <div class="analytics-header">
+                                    <div class="analytics-indicator"></div>
+                                    <div class="analytics-info">
+                                        <h3>${habit.name}</h3>
+                                        <span>МОНИТОРИНГ АКТИВНОСТИ</span>
+                                    </div>
+                                </div>
+                                <div class="stats-row">
+                                    <div class="stat-item">
+                                        <div class="stat-item-label">ВСЕГО ВЫПОЛНЕНИЙ</div>
+                                        <div class="stat-item-value">
+                                            <span class="stat-icon-small">◉</span>
+                                            ${String(totalComp).padStart(2, '0')}
+                                        </div>
+                                    </div>
+                                    <div class="stat-divider"></div>
+                                    <div class="stat-item">
+                                        <div class="stat-item-label">БЕЗ ПРОПУСКОВ</div>
+                                        <div class="stat-item-value highlighted">
+                                            <span class="stat-icon-small">⚡</span>
+                                            ${String(streak).padStart(2, '0')}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="heatmap-container">
+                                    <div class="heatmap">
+                                        ${last30Days.map(day => {
+                                            const isCompleted = habit.completedDates.includes(day);
+                                            const isToday = day === getTodayStr();
+                                            return `<div class="heatmap-cell ${isCompleted ? 'active' : ''} ${isToday ? 'today' : ''}"></div>`;
+                                        }).join('')}
+                                    </div>
+                                    <div class="heatmap-legend">
+                                        <span>30 ДНЕЙ НАЗАД</span>
+                                        <span>СЕГОДНЯ</span>
+                                    </div>
+                                </div>
+                                <div class="completion-bar">
+                                    <div class="completion-bar-track">
+                                        <div class="completion-bar-fill" style="width: ${completionRate}%">
+                                            <div class="completion-bar-glow"></div>
+                                        </div>
+                                    </div>
+                                    <div class="completion-percent">${completionRate}%</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                    ${habits.length === 0 ? `
+                        <div class="empty-state">
+                            <div class="empty-hex"><span>◇</span></div>
+                            <h2>НЕТ ДАННЫХ</h2>
+                            <p>Добавьте протоколы для отслеживания</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            renderParticles();
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

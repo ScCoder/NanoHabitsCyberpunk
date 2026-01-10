@@ -509,7 +509,7 @@
 
         .dropdown-menu {
             position: absolute;
-            top: 100%;
+            top: 0%;
             right: 0;
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -1239,20 +1239,129 @@
         function getCurrentStreak(habit) {
             if (habit.completedDates.length === 0) return 0;
             
-            const sortedDates = [...habit.completedDates].sort().reverse();
-            let streak = 0;
-            let currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = today.toISOString().split('T')[0];
             
-            for (let i = 0; i < sortedDates.length; i++) {
-                const completedDate = new Date(sortedDates[i]);
-                completedDate.setHours(0, 0, 0, 0);
-                const daysDiff = Math.floor((currentDate - completedDate) / (1000 * 60 * 60 * 24));
+            // Сортируем даты по убыванию (от новых к старым)
+            const sortedDates = [...habit.completedDates].sort().reverse();
+            
+            let streak = 0;
+            let checkDate = new Date(today);
+            
+            if (habit.scheduleType === 'interval') {
+                // Для интервальных привычек: каждые N дней
+                const interval = habit.interval || 1;
                 
-                if (daysDiff === streak) {
-                    streak++;
+                // Начинаем с сегодня или последней даты выполнения
+                if (sortedDates[0] === todayStr) {
+                    streak = 1;
+                    checkDate.setDate(checkDate.getDate() - interval);
                 } else {
-                    break;
+                    // Если сегодня не выполнена, проверяем, должна ли была быть выполнена
+                    const lastDate = new Date(sortedDates[0]);
+                    const daysSinceLast = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysSinceLast < interval) {
+                        // Ещё не пора выполнять, начинаем с последней даты
+                        streak = 1;
+                        checkDate = new Date(lastDate);
+                        checkDate.setDate(checkDate.getDate() - interval);
+                    } else {
+                        // Пропущена, серия прервана
+                        return 0;
+                    }
+                }
+                
+                // Идём назад по интервалам
+                for (let i = 1; i < sortedDates.length; i++) {
+                    const expectedDateStr = checkDate.toISOString().split('T')[0];
+                    
+                    if (sortedDates[i] === expectedDateStr) {
+                        streak++;
+                        checkDate.setDate(checkDate.getDate() - interval);
+                    } else {
+                        // Проверяем диапазон ±1 день (на случай смещения из-за часовых поясов)
+                        const prevDay = new Date(checkDate);
+                        prevDay.setDate(prevDay.getDate() - 1);
+                        const nextDay = new Date(checkDate);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        
+                        if (sortedDates[i] === prevDay.toISOString().split('T')[0] ||
+                            sortedDates[i] === nextDay.toISOString().split('T')[0]) {
+                            streak++;
+                            checkDate.setDate(checkDate.getDate() - interval);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                
+            } else if (habit.scheduleType === 'weekdays') {
+                // Для недельных привычек: только в определённые дни недели
+                const weekdays = habit.weekdays || [];
+                
+                // Функция проверки, запланирован ли день
+                const isScheduledDay = (date) => {
+                    const dayOfWeek = (date.getDay() + 6) % 7; // 0=ПН, 6=ВС
+                    return weekdays.includes(dayOfWeek);
+                };
+                
+                // Если сегодня запланирован день
+                if (isScheduledDay(today)) {
+                    if (sortedDates[0] === todayStr) {
+                        streak = 1;
+                    } else {
+                        // Сегодня запланирован, но не выполнен - серия прервана
+                        return 0;
+                    }
+                } else {
+                    // Сегодня не запланирован, начинаем с последней даты
+                    if (sortedDates[0] === todayStr) {
+                        // Выполнена в незапланированный день - считаем
+                        streak = 1;
+                    } else {
+                        // Ищем последний запланированный день
+                        checkDate = new Date(today);
+                        let foundScheduled = false;
+                        
+                        for (let d = 0; d < 7; d++) {
+                            checkDate.setDate(checkDate.getDate() - 1);
+                            if (isScheduledDay(checkDate)) {
+                                const checkDateStr = checkDate.toISOString().split('T')[0];
+                                if (sortedDates[0] === checkDateStr) {
+                                    streak = 1;
+                                    foundScheduled = true;
+                                } else {
+                                    // Пропущен последний запланированный день
+                                    return 0;
+                                }
+                                break;
+                            }
+                        }
+                        
+                        if (!foundScheduled) return 0;
+                    }
+                }
+                
+                // Идём назад по запланированным дням
+                checkDate = new Date(sortedDates[0]);
+                let dateIndex = 1;
+                
+                for (let daysBack = 1; daysBack < 365 && dateIndex < sortedDates.length; daysBack++) {
+                    checkDate.setDate(checkDate.getDate() - 1);
+                    
+                    if (isScheduledDay(checkDate)) {
+                        const expectedDateStr = checkDate.toISOString().split('T')[0];
+                        
+                        if (sortedDates[dateIndex] === expectedDateStr) {
+                            streak++;
+                            dateIndex++;
+                        } else {
+                            // Пропущен запланированный день
+                            break;
+                        }
+                    }
                 }
             }
             
@@ -1499,6 +1608,11 @@
                                 <div class="logo-version">SYS.VERSION 2.0</div>
                             </div>
                         </div>
+						<button class="stats-btn" onclick="showDataMenu()" style="margin-right: 12px;">
+						<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5-5m0 0l5 5m-5-5v12"/>
+						</svg>
+						</button>
                         <button class="stats-btn" onclick="showHistory()">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 3v18h18"/>
@@ -1758,6 +1872,417 @@
             
             renderParticles();
         }
+
+        // ЭКСПОРТ/ИМПОРТ ДАННЫХ
+        function exportData() {
+            try {
+                const data = {
+                    version: '2.0',
+                    exportDate: new Date().toISOString(),
+                    habits: habits
+                };
+                
+                const jsonString = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `nanohabits-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                showNotification('✅ Данные экспортированы!', 'success');
+            } catch (error) {
+                showNotification('❌ Ошибка экспорта', 'error');
+            }
+        }
+        
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        if (!data.habits || !Array.isArray(data.habits)) {
+                            throw new Error('Неверный формат файла');
+                        }
+                        
+                        showImportConfirmDialog(data);
+                        
+                    } catch (error) {
+                        showNotification('❌ Ошибка чтения файла', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+        
+        function showImportConfirmDialog(data) {
+            const habitCount = data.habits.length;
+            const currentCount = habits.length;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                            <span class="title-bracket">[</span>
+                            ИМПОРТ ДАННЫХ
+                            <span class="title-bracket">]</span>
+                        </div>
+                        <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div style="margin: 24px 0; padding: 20px; border: 1px solid var(--border); background: var(--bg-card);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                            <span style="font-size: 12px; color: var(--text-dim); letter-spacing: 0.1em;">ТЕКУЩИЕ ПРИВЫЧКИ:</span>
+                            <span style="font-family: 'Orbitron', sans-serif; font-size: 18px; color: var(--cyan); font-weight: 700;">${currentCount}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                            <span style="font-size: 12px; color: var(--text-dim); letter-spacing: 0.1em;">В ФАЙЛЕ:</span>
+                            <span style="font-family: 'Orbitron', sans-serif; font-size: 18px; color: var(--cyan); font-weight: 700;">${habitCount}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                            <span style="font-size: 12px; color: var(--text-dim); letter-spacing: 0.1em;">ДАТА ЭКСПОРТА:</span>
+                            <span style="font-family: 'Orbitron', sans-serif; font-size: 18px; color: var(--cyan); font-weight: 700;">${new Date(data.exportDate).toLocaleDateString('ru-RU')}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; color: var(--yellow); margin: 20px 0; font-size: 14px; font-weight: 600;">
+                        ⚠️ Выберите действие:
+                    </div>
+                    
+                    <button class="submit-btn" onclick="confirmImport(${encodeURIComponent(JSON.stringify(data))}, 'merge')" style="margin-bottom: 12px;">
+                        <span class="btn-text">ОБЪЕДИНИТЬ</span>
+                        <span class="btn-icon">🔀</span>
+                    </button>
+                    
+                    <button class="submit-btn" onclick="confirmImport(${encodeURIComponent(JSON.stringify(data))}, 'replace')" style="background: transparent; color: #FF3366; border-color: #FF3366;">
+                        <span class="btn-text">ЗАМЕНИТЬ ВСЕ</span>
+                        <span class="btn-icon">⚠️</span>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            modal.onclick = () => modal.remove();
+        }
+        
+        window.confirmImport = function(dataStr, mode) {
+            try {
+                const data = JSON.parse(decodeURIComponent(dataStr));
+                
+                if (mode === 'replace') {
+                    habits = data.habits;
+                } else if (mode === 'merge') {
+                    const existingIds = new Set(habits.map(h => h.id));
+                    const newHabits = data.habits.filter(h => !existingIds.has(h.id));
+                    habits = [...habits, ...newHabits];
+                }
+                
+                saveHabits();
+                render();
+                
+                document.querySelector('.modal-overlay')?.remove();
+                showNotification(`✅ Импортировано: ${data.habits.length} привычек`, 'success');
+                
+            } catch (error) {
+                showNotification('❌ Ошибка импорта', 'error');
+            }
+        };
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'success' ? '#00FF88' : type === 'error' ? '#FF3366' : '#00F5FF'};
+                color: #0a0a0f;
+                padding: 16px 24px;
+                border-radius: 8px;
+                font-weight: 700;
+                z-index: 10000;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        window.showDataMenu = function() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                            <span class="title-bracket">[</span>
+                            УПРАВЛЕНИЕ ДАННЫМИ
+                            <span class="title-bracket">]</span>
+                        </div>
+                        <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin: 24px 0;">
+                        <div style="flex: 1; padding: 20px; border: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; gap: 16px;">
+                            <span style="font-size: 32px; color: var(--cyan);">◈</span>
+                            <div>
+                                <div style="font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); line-height: 1;">${habits.length}</div>
+                                <div style="font-size: 10px; color: var(--text-dim); letter-spacing: 0.15em; margin-top: 4px;">ПРИВЫЧЕК</div>
+                            </div>
+                        </div>
+                        <div style="flex: 1; padding: 20px; border: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; gap: 16px;">
+                            <span style="font-size: 32px; color: var(--cyan);">◉</span>
+                            <div>
+                                <div style="font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); line-height: 1;">${habits.reduce((sum, h) => sum + h.completedDates.length, 0)}</div>
+                                <div style="font-size: 10px; color: var(--text-dim); letter-spacing: 0.15em; margin-top: 4px;">ВЫПОЛНЕНИЙ</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="exportData(); this.closest('.modal-overlay').remove();" style="width: 100%; display: flex; align-items: center; gap: 20px; padding: 20px; margin-bottom: 12px; border: 1px solid #00FF88; background: var(--bg-card); color: var(--text); font-family: inherit; cursor: pointer;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00FF88" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5-5m0 0l5 5m-5-5v12"/>
+                        </svg>
+                        <div style="text-align: left;">
+                            <div style="font-size: 16px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 4px;">ЭКСПОРТ</div>
+                            <div style="font-size: 12px; color: var(--text-dim);">Сохранить данные в файл</div>
+                        </div>
+                    </button>
+                    
+                    <button onclick="importData(); this.closest('.modal-overlay').remove();" style="width: 100%; display: flex; align-items: center; gap: 20px; padding: 20px; border: 1px solid #00F5FF; background: var(--bg-card); color: var(--text); font-family: inherit; cursor: pointer;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00F5FF" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5 5m0 0l-5-5m5 5V3"/>
+                        </svg>
+                        <div style="text-align: left;">
+                            <div style="font-size: 16px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 4px;">ИМПОРТ</div>
+                            <div style="font-size: 12px; color: var(--text-dim);">Загрузить данные из файла</div>
+                        </div>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            modal.onclick = () => modal.remove();
+        };
+
+
+        // ========== ЭКСПОРТ/ИМПОРТ ДАННЫХ ==========
+        
+        function exportData() {
+            try {
+                const data = {
+                    version: '2.0',
+                    exportDate: new Date().toISOString(),
+                    habits: habits
+                };
+                
+                const jsonString = JSON.stringify(data, null, 2);
+                const filename = 'nanohabits-backup-' + new Date().toISOString().split('T')[0] + '.json';
+                
+                if (typeof AndroidInterface !== 'undefined') {
+                    AndroidInterface.exportData(jsonString, filename);
+                } else {
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    showNotification('✅ Данные экспортированы!', 'success');
+                }
+            } catch (error) {
+                showNotification('❌ Ошибка экспорта: ' + error.message, 'error');
+            }
+        }
+        
+        function importData() {
+            try {
+                if (typeof AndroidInterface !== 'undefined') {
+                    AndroidInterface.importData();
+                } else {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.json';
+                    input.onchange = function(e) {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            try {
+                                const data = JSON.parse(event.target.result);
+                                processImportedData(data);
+                            } catch (error) {
+                                showNotification('❌ Ошибка чтения файла', 'error');
+                            }
+                        };
+                        reader.readAsText(file);
+                    };
+                    input.click();
+                }
+            } catch (error) {
+                showNotification('❌ Ошибка импорта: ' + error.message, 'error');
+            }
+        }
+        
+        window.handleImportedDataBase64 = function(base64String) {
+            try {
+                const binaryString = atob(base64String);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const jsonString = new TextDecoder('utf-8').decode(bytes);
+                const data = JSON.parse(jsonString);
+                
+                if (typeof AndroidInterface !== 'undefined') {
+                }
+                
+                processImportedData(data);
+            } catch (error) {
+                if (typeof AndroidInterface !== 'undefined') {
+                }
+                showNotification('❌ Ошибка парсинга: ' + error.message, 'error');
+            }
+        };
+        
+        function processImportedData(data) {
+            if (!data.habits || !Array.isArray(data.habits)) {
+                if (typeof AndroidInterface !== 'undefined') {
+                }
+                showNotification('❌ Неверный формат файла', 'error');
+                return;
+            }
+            
+            if (typeof AndroidInterface !== 'undefined') {
+            }
+            
+            showImportConfirmDialog(data);
+        }
+        
+        function showImportConfirmDialog(data) {
+            const habitCount = data.habits.length;
+            const currentCount = habits.length;
+            const exportDate = new Date(data.exportDate).toLocaleDateString('ru-RU');
+            const dataStr = encodeURIComponent(JSON.stringify(data));
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = '<div class="modal-content" onclick="event.stopPropagation()">' +
+                '<div class="modal-header"><div class="modal-title"><span class="title-bracket">[</span>ИМПОРТ ДАННЫХ<span class="title-bracket">]</span></div>' +
+                '<button class="close-btn" onclick="this.closest(\'.modal-overlay\').remove()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>' +
+                '<div style="margin: 24px 0; padding: 20px; border: 1px solid var(--border); background: var(--bg-card);">' +
+                '<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);"><span style="font-size: 12px; color: var(--text-dim);">ТЕКУЩИЕ:</span><span style="font-family: \'Orbitron\', sans-serif; font-size: 18px; color: var(--cyan); font-weight: 700;">' + currentCount + '</span></div>' +
+                '<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);"><span style="font-size: 12px; color: var(--text-dim);">В ФАЙЛЕ:</span><span style="font-family: \'Orbitron\', sans-serif; font-size: 18px; color: var(--cyan); font-weight: 700;">' + habitCount + '</span></div>' +
+                '<div style="display: flex; justify-content: space-between; padding: 12px 0;"><span style="font-size: 12px; color: var(--text-dim);">ДАТА:</span><span style="font-family: \'Orbitron\', sans-serif; font-size: 18px; color: var(--cyan); font-weight: 700;">' + exportDate + '</span></div></div>' +
+                '<div style="text-align: center; color: var(--yellow); margin: 20px 0; font-size: 14px;">⚠️ Выберите действие:</div>' +
+                '<button class="submit-btn" onclick="confirmImportData(\'' + dataStr + '\', \'merge\')" style="margin-bottom: 12px;"><span class="btn-text">ОБЪЕДИНИТЬ</span><span class="btn-icon">🔀</span></button>' +
+                '<button class="submit-btn" onclick="confirmImportData(\'' + dataStr + '\', \'replace\')" style="background: transparent; color: #FF3366; border-color: #FF3366;"><span class="btn-text">ЗАМЕНИТЬ ВСЕ</span><span class="btn-icon">⚠️</span></button></div>';
+            
+            document.body.appendChild(modal);
+            modal.onclick = function() { modal.remove(); };
+        }
+        
+        window.confirmImportData = function(dataStr, mode) {
+            try {
+                const data = JSON.parse(decodeURIComponent(dataStr));
+                
+                if (mode === 'replace') {
+                    habits = data.habits;
+                } else if (mode === 'merge') {
+                    const existingIds = new Set(habits.map(function(h) { return h.id; }));
+                    const newHabits = data.habits.filter(function(h) { return !existingIds.has(h.id); });
+                    habits = habits.concat(newHabits);
+                }
+                
+                saveHabits();
+                render();
+                
+                document.querySelector('.modal-overlay').remove();
+                
+                showNotification('✅ Импортировано: ' + data.habits.length, 'success');
+            } catch (error) {
+                if (typeof AndroidInterface !== 'undefined') {
+                }
+                showNotification('❌ Ошибка импорта: ' + error.message, 'error');
+            }
+        };
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: ' + 
+                (type === 'success' ? '#00FF88' : type === 'error' ? '#FF3366' : '#00F5FF') + 
+                '; color: #0a0a0f; padding: 16px 24px; border-radius: 8px; font-weight: 700; z-index: 10000; box-shadow: 0 4px 20px rgba(0,0,0,0.5);';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(function() {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(function() { notification.remove(); }, 300);
+            }, 3000);
+        }
+        
+        window.showDataMenu = function() {
+            const habitCount = habits.length;
+            const totalCompletions = habits.reduce(function(sum, h) { return sum + h.completedDates.length; }, 0);
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = '<div class="modal-content" onclick="event.stopPropagation()">' +
+                '<div class="modal-header"><div class="modal-title"><span class="title-bracket">[</span>УПРАВЛЕНИЕ ДАННЫМИ<span class="title-bracket">]</span></div>' +
+                '<button class="close-btn" onclick="this.closest(\'.modal-overlay\').remove()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>' +
+                '<div style="display: flex; gap: 12px; margin: 24px 0;">' +
+                '<div style="flex: 1; padding: 20px; border: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; gap: 16px;"><span style="font-size: 32px; color: var(--cyan);">◈</span>' +
+                '<div><div style="font-family: \'Orbitron\', sans-serif; font-size: 28px; font-weight: 700; color: var(--text);">' + habitCount + '</div>' +
+                '<div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">ПРИВЫЧЕК</div></div></div>' +
+                '<div style="flex: 1; padding: 20px; border: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; gap: 16px;"><span style="font-size: 32px; color: var(--cyan);">◉</span>' +
+                '<div><div style="font-family: \'Orbitron\', sans-serif; font-size: 28px; font-weight: 700; color: var(--text);">' + totalCompletions + '</div>' +
+                '<div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">ВЫПОЛНЕНИЙ</div></div></div></div>' +
+                '<button onclick="exportData(); this.closest(\'.modal-overlay\').remove();" style="width: 100%; display: flex; align-items: center; gap: 20px; padding: 20px; margin-bottom: 12px; border: 1px solid #00FF88; background: var(--bg-card); color: var(--text); cursor: pointer;">' +
+                '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00FF88" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5-5m0 0l5 5m-5-5v12"/></svg>' +
+                '<div style="text-align: left;"><div style="font-size: 16px; font-weight: 700;">ЭКСПОРТ</div><div style="font-size: 12px; color: var(--text-dim);">Сохранить в Downloads</div></div></button>' +
+                '<button onclick="importData(); this.closest(\'.modal-overlay\').remove();" style="width: 100%; display: flex; align-items: center; gap: 20px; padding: 20px; border: 1px solid #00F5FF; background: var(--bg-card); color: var(--text); cursor: pointer;">' +
+                '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00F5FF" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5 5m0 0l-5-5m5 5V3"/></svg>' +
+                '<div style="text-align: left;"><div style="font-size: 16px; font-weight: 700;">ИМПОРТ</div><div style="font-size: 12px; color: var(--text-dim);">Загрузить из файла</div></div></button></div>';
+            
+            document.body.appendChild(modal);
+            modal.onclick = function() { modal.remove(); };
+        };
 
         // Start the app
         document.addEventListener('DOMContentLoaded', init);

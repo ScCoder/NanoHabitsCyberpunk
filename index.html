@@ -59,7 +59,7 @@
         .btn-frame { display: flex; align-items: center; justify-content: center; }
         .btn-empty { width: 20px; height: 20px; border: 2px solid var(--text-dim); border-radius: 2px; }
         .habit-info { flex: 1; min-width: 0; }
-        .habit-name { font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 600; letter-spacing: 0.05em; color: var(--text); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .habit-name { font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 600; letter-spacing: 0.05em; color: var(--text); margin-bottom: 6px; word-wrap: break-word; }
         .habit-name.done { text-decoration: line-through; color: var(--text-dim); }
         .habit-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .habit-schedule { font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em; }
@@ -249,7 +249,7 @@
         function saveHabits() { localStorage.setItem(STORAGE_KEY, JSON.stringify(habits)); }
         function loadMoodEntries() { const s = localStorage.getItem(MOOD_STORAGE_KEY); moodEntries = s ? JSON.parse(s) : []; }
         function saveMoodEntries() { localStorage.setItem(MOOD_STORAGE_KEY, JSON.stringify(moodEntries)); }
-        function getTodayStr() { return new Date().toISOString().split('T')[0]; }
+        function getTodayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 
         function isHabitDueToday(h) {
             const t = new Date(), d = (t.getDay() + 6) % 7;
@@ -264,9 +264,14 @@
         function getCurrentStreak(habit) {
             if (habit.completedDates.length === 0) return 0;
             
+            // Функция для форматирования даты в локальном времени (без UTC сдвига)
+            const formatLocalDate = (date) => {
+                return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+            };
+            
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const todayStr = today.toISOString().split('T')[0];
+            const todayStr = formatLocalDate(today);
             
             // Сортируем даты по убыванию (от новых к старым)
             const sortedDates = [...habit.completedDates].sort().reverse();
@@ -274,8 +279,7 @@
             if (habit.scheduleType === 'interval') {
                 const interval = habit.interval || 1;
                 
-                const lastCompletedDate = new Date(sortedDates[0]);
-                lastCompletedDate.setHours(0, 0, 0, 0);
+                const lastCompletedDate = new Date(sortedDates[0] + 'T00:00:00');
                 const daysSinceLast = Math.floor((today - lastCompletedDate) / 864e5);
                 
                 // Если прошло больше чем interval дней с последнего выполнения - серия прервана
@@ -285,10 +289,10 @@
                 
                 // Считаем серию
                 let streak = 1;
-                let prevDate = new Date(sortedDates[0]);
+                let prevDate = new Date(sortedDates[0] + 'T00:00:00');
                 
                 for (let i = 1; i < sortedDates.length; i++) {
-                    const currDate = new Date(sortedDates[i]);
+                    const currDate = new Date(sortedDates[i] + 'T00:00:00');
                     const diffDays = Math.floor((prevDate - currDate) / 864e5);
                     
                     // Для interval-привычек: разница должна быть равна интервалу 
@@ -322,7 +326,7 @@
                     let d = new Date(fromDate);
                     while (days.length < count) {
                         if (isScheduledDay(d)) {
-                            days.push(d.toISOString().split('T')[0]);
+                            days.push(formatLocalDate(d));
                         }
                         d.setDate(d.getDate() - 1);
                     }
@@ -645,7 +649,7 @@
         function renderHistory() {
             const tc = habits.reduce((s,h) => s + h.completedDates.length, 0);
             const bs = Math.max(0, ...habits.map(h => getCurrentStreak(h)));
-            const last30 = []; for (let i = 29; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate()-i); last30.push(d.toISOString().split('T')[0]); }
+            const last30 = []; for (let i = 29; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate()-i); last30.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')); }
             document.getElementById('root').innerHTML = '<div class="grid-overlay"></div><div class="vignette"></div><header class="app-header"><div class="header-row"><button class="back-btn" onclick="hideHistory()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="logo-section"><div class="logo-icon"><span class="logo-diamond">◈</span></div><div class="logo-text"><h1>АНАЛИТИКА</h1><div class="logo-version">СТАТИСТИКА ПРОТОКОЛОВ</div></div></div><div style="width:48px"></div></div></header><div class="stats-grid"><div class="stat-card"><div class="stat-icon">◈</div><div class="stat-value">'+String(habits.length).padStart(2,'0')+'</div><div class="stat-label">ПРОТОКОЛОВ</div></div><div class="stat-card"><div class="stat-icon">◉</div><div class="stat-value">'+String(tc).padStart(2,'0')+'</div><div class="stat-label">ВЫПОЛНЕНО</div></div><div class="stat-card featured"><div class="stat-icon">⚡</div><div class="stat-value">'+String(bs).padStart(2,'0')+'</div><div class="stat-label">МАКС. СЕРИЯ</div></div></div><div class="habits-analytics">'+habits.map((h,i) => { 
                 const tc = h.completedDates.length; 
                 const st = getCurrentStreak(h); 

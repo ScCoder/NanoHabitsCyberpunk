@@ -221,6 +221,108 @@
         .export-mood-btn { display: flex; align-items: center; justify-content: center; gap: 12px; width: calc(100% - 40px); margin: 20px auto; padding: 16px; background: var(--bg-card); border: 1px solid var(--green); color: var(--green); font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.15em; cursor: pointer; transition: all 0.3s ease; }
         .export-mood-btn:hover { background: rgba(0, 255, 136, 0.1); }
         .export-mood-btn:active { background: var(--green); color: var(--bg); }
+        /* === ALL COMPLETE CYBERPUNK EFFECT === */
+        .all-complete-overlay { position: fixed; inset: 0; z-index: 3000; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; overflow: hidden; }
+        .all-complete-overlay.fade-out { opacity: 0; }
+        .all-complete-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0, 245, 255, 0.15) 0%, rgba(0, 0, 0, 0.97) 70%); animation: acBgPulse 2s ease-in-out infinite; }
+        @keyframes acBgPulse { 0%, 100% { background: radial-gradient(ellipse at center, rgba(0, 245, 255, 0.15) 0%, rgba(0, 0, 0, 0.97) 70%); } 50% { background: radial-gradient(ellipse at center, rgba(255, 0, 229, 0.15) 0%, rgba(0, 0, 0, 0.97) 70%); } }
+        .all-complete-strobe { position: absolute; inset: 0; pointer-events: none; animation: acStrobe 4s ease-in-out forwards; }
+        @keyframes acStrobe {
+            0% { background: transparent; }
+            2% { background: rgba(0, 245, 255, 0.4); }
+            4% { background: transparent; }
+            6% { background: rgba(255, 0, 229, 0.35); }
+            8% { background: transparent; }
+            10% { background: rgba(0, 255, 136, 0.3); }
+            12% { background: transparent; }
+            14% { background: rgba(0, 245, 255, 0.5); }
+            16% { background: transparent; }
+            18% { background: rgba(255, 0, 229, 0.4); }
+            20% { background: transparent; }
+            22% { background: rgba(255, 229, 0, 0.3); }
+            24% { background: transparent; }
+            26% { background: rgba(0, 245, 255, 0.35); }
+            28% { background: transparent; }
+            30% { background: rgba(255, 0, 229, 0.25); }
+            32% { background: transparent; }
+            36% { background: rgba(0, 255, 136, 0.2); }
+            38% { background: transparent; }
+            42% { background: rgba(0, 245, 255, 0.15); }
+            44% { background: transparent; }
+            50% { background: rgba(255, 0, 229, 0.1); }
+            52% { background: transparent; }
+            60% { background: rgba(0, 245, 255, 0.08); }
+            62% { background: transparent; }
+            75% { background: rgba(0, 245, 255, 0.05); }
+            77% { background: transparent; }
+            100% { background: transparent; }
+        }
+        .all-complete-scanlines { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 245, 255, 0.03) 2px, rgba(0, 245, 255, 0.03) 4px); pointer-events: none; animation: acScanScroll 8s linear infinite; }
+        @keyframes acScanScroll { from { background-position: 0 0; } to { background-position: 0 100vh; } }
+        .all-complete-glitch-lines { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+        .all-complete-glitch-lines::before, .all-complete-glitch-lines::after { content: ''; position: absolute; left: 0; right: 0; height: 2px; background: var(--cyan); opacity: 0.4; animation: acGlitchLine 3s ease-in-out infinite; }
+        .all-complete-glitch-lines::before { top: 30%; animation-delay: 0s; }
+        .all-complete-glitch-lines::after { top: 70%; animation-delay: 1.5s; background: var(--magenta); }
+        @keyframes acGlitchLine { 0%, 90%, 100% { opacity: 0; transform: scaleX(0); } 92%, 98% { opacity: 0.6; transform: scaleX(1); } }
+        .all-complete-content { position: relative; z-index: 10; text-align: center; animation: acContentIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; overflow: visible; }
+        @keyframes acContentIn { from { opacity: 0; transform: scale(0.5) translateY(30px); filter: blur(10px); } to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); } }
+        .all-complete-hex-ring { width: 140px; height: 140px; margin: 0 auto 30px; position: relative; display: flex; align-items: center; justify-content: center; overflow: visible; }
+        .sparks-container { position: absolute; top: 50%; left: 50%; width: 0; height: 0; z-index: 5; pointer-events: none; }
+        .spark { position: absolute; border-radius: 50%; opacity: 0; animation: sparkFly ease-out forwards; }
+        .spark-trail { border-radius: 2px; width: 3px !important; animation-name: sparkFlyTrail; }
+        @keyframes sparkFly {
+            0% { transform: translate(0, 0) scale(1.5); opacity: 1; filter: brightness(2); }
+            15% { opacity: 1; filter: brightness(1.5); }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; filter: brightness(0.5); }
+        }
+        @keyframes sparkFlyTrail {
+            0% { transform: translate(0, 0) scale(1.5) rotate(0deg); opacity: 1; filter: brightness(2); }
+            15% { opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0) rotate(360deg); opacity: 0; filter: brightness(0.5); }
+        }
+        .hex-ring-1, .hex-ring-2, .hex-ring-3 { position: absolute; inset: 0; border: 2px solid var(--cyan); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+        .hex-ring-1 { animation: acRingSpin 3s linear infinite; box-shadow: 0 0 30px var(--cyan); }
+        .hex-ring-2 { inset: 10px; border-color: var(--magenta); animation: acRingSpin 3s linear infinite reverse; box-shadow: 0 0 20px var(--magenta); }
+        .hex-ring-3 { inset: 20px; border-color: var(--green); animation: acRingSpin 4s linear infinite; box-shadow: 0 0 15px var(--green); }
+        @keyframes acRingSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .all-complete-icon { font-size: 42px; color: var(--cyan); text-shadow: 0 0 40px var(--cyan), 0 0 80px var(--cyan); z-index: 1; animation: acIconPulse 1.5s ease-in-out infinite; }
+        @keyframes acIconPulse { 0%, 100% { text-shadow: 0 0 40px var(--cyan), 0 0 80px var(--cyan); transform: scale(1); } 50% { text-shadow: 0 0 60px var(--magenta), 0 0 120px var(--magenta); transform: scale(1.1); } }
+        .all-complete-hex-ring::after { content: ''; position: absolute; inset: -20px; border-radius: 50%; background: radial-gradient(circle, rgba(0, 245, 255, 0.4) 0%, transparent 70%); animation: acCoreFlash 1.8s ease-out infinite; pointer-events: none; }
+        @keyframes acCoreFlash { 0% { transform: scale(0.3); opacity: 1; } 50% { transform: scale(2.5); opacity: 0; } 100% { transform: scale(0.3); opacity: 0; } }
+        .all-complete-glitch { font-family: 'Orbitron', monospace; font-size: 32px; font-weight: 900; letter-spacing: 0.2em; color: var(--cyan); text-shadow: 0 0 50px var(--cyan); margin-bottom: 8px; position: relative; animation: acGlitchText 3s ease-in-out infinite; }
+        .all-complete-glitch::before, .all-complete-glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; right: 0; }
+        .all-complete-glitch::before { color: var(--magenta); animation: acGlitchShift1 2s ease-in-out infinite; clip-path: inset(0 0 60% 0); }
+        .all-complete-glitch::after { color: var(--green); animation: acGlitchShift2 2s ease-in-out infinite; clip-path: inset(60% 0 0 0); }
+        @keyframes acGlitchText { 0%, 95%, 100% { opacity: 1; } 96% { opacity: 0.8; transform: skewX(-2deg); } 97% { opacity: 1; transform: skewX(0); } }
+        @keyframes acGlitchShift1 { 0%, 80%, 100% { transform: translateX(0); } 82% { transform: translateX(-4px); } 84% { transform: translateX(4px); } 86% { transform: translateX(0); } }
+        @keyframes acGlitchShift2 { 0%, 85%, 100% { transform: translateX(0); } 87% { transform: translateX(3px); } 89% { transform: translateX(-3px); } 91% { transform: translateX(0); } }
+        .all-complete-sub { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--green); letter-spacing: 0.4em; opacity: 0.8; margin-bottom: 24px; text-shadow: 0 0 20px var(--green); animation: acSubBlink 2s ease-in-out infinite; }
+        @keyframes acSubBlink { 0%, 100% { opacity: 0.8; } 50% { opacity: 0.4; } }
+        .all-complete-stats { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .ac-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .ac-stat-val { font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 800; color: #fff; text-shadow: 0 0 20px var(--cyan); }
+        .ac-stat-lbl { font-size: 9px; color: var(--text-dim); letter-spacing: 0.25em; }
+        .ac-stat-divider { color: var(--cyan); font-size: 16px; opacity: 0.5; animation: acDivPulse 1s ease-in-out infinite; }
+        @keyframes acDivPulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
+        .all-complete-bar { width: 240px; height: 4px; margin: 0 auto; background: rgba(255,255,255,0.1); border: 1px solid var(--border); overflow: hidden; }
+        .all-complete-bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--magenta), var(--green)); animation: acBarFill 1.5s ease-out 0.3s forwards; box-shadow: 0 0 15px var(--cyan); }
+        @keyframes acBarFill { to { width: 100%; } }
+
+        /* === SETTINGS === */
+        .settings-list { display: flex; flex-direction: column; gap: 12px; }
+        .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 18px; background: var(--bg-card); border: 1px solid var(--border); transition: all 0.3s ease; }
+        .settings-item-info { display: flex; align-items: center; gap: 14px; }
+        .settings-item-icon { color: var(--cyan); display: flex; align-items: center; }
+        .settings-item-label { font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: var(--text); }
+        .settings-item-desc { font-size: 11px; color: var(--text-dim); margin-top: 3px; letter-spacing: 0.05em; }
+        /* Cyber toggle switch */
+        .cyber-switch { position: relative; width: 56px; height: 28px; flex-shrink: 0; }
+        .cyber-switch input { opacity: 0; width: 0; height: 0; }
+        .cyber-switch-slider { position: absolute; inset: 0; cursor: pointer; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); transition: all 0.3s ease; clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%); }
+        .cyber-switch-slider::before { content: ''; position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; background: var(--text-dim); transition: all 0.3s ease; clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%); }
+        .cyber-switch input:checked + .cyber-switch-slider { background: rgba(0, 245, 255, 0.15); border-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 245, 255, 0.2); }
+        .cyber-switch input:checked + .cyber-switch-slider::before { left: 28px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -234,6 +336,316 @@
         const MOOD_COLORS = { '-4': '#FF0040', '-3': '#FF3366', '-2': '#FF6B6B', '-1': '#FFA07A', '0': '#888888', '1': '#98D8AA', '2': '#7EC8E3', '3': '#00F5FF', '4': '#00FF88' };
         const MOOD_LABELS = { '-4': 'УЖАСНО', '-3': 'ПЛОХО', '-2': 'ГРУСТНО', '-1': 'ТАК СЕБЕ', '0': 'НЕЙТРАЛЬНО', '1': 'НОРМАЛЬНО', '2': 'ХОРОШО', '3': 'ОТЛИЧНО', '4': 'ПРЕКРАСНО' };
         let habits = [], moodEntries = [], currentView = 'main';
+        let soundEnabled = localStorage.getItem('nanoSoundEnabled') !== 'false'; // по умолчанию вкл
+
+        // ═══════ CYBER AUDIO MODULE — DUBSTEP EDITION ═══════
+        const CyberAudio = (() => {
+            let ctx = null;
+            const getCtx = () => {
+                if (!ctx || ctx.state === 'closed') ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctx.state === 'suspended') ctx.resume();
+                return ctx;
+            };
+
+            // Wobble bass: sawtooth через LFO-модулированный low-pass фильтр
+            const wobble = (startTime, duration, baseFreq = 55, lfoRate = 8, vol = 0.18) => {
+                const c = getCtx();
+                const osc = c.createOscillator();
+                const filter = c.createBiquadFilter();
+                const lfo = c.createOscillator();
+                const lfoGain = c.createGain();
+                const gain = c.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(baseFreq, startTime);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(500, startTime);
+                filter.Q.setValueAtTime(12, startTime);
+
+                lfo.type = 'sine';
+                lfo.frequency.setValueAtTime(lfoRate, startTime);
+                lfoGain.gain.setValueAtTime(400, startTime);
+
+                gain.gain.setValueAtTime(vol, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency);
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(c.destination);
+
+                osc.start(startTime);
+                lfo.start(startTime);
+                osc.stop(startTime + duration + 0.05);
+                lfo.stop(startTime + duration + 0.05);
+            };
+
+            // Sub-bass drop: синус с падением частоты
+            const subDrop = (startTime, duration = 0.6, startFreq = 150, endFreq = 30, vol = 0.25) => {
+                const c = getCtx();
+                const osc = c.createOscillator();
+                const gain = c.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(startFreq, startTime);
+                osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
+                gain.gain.setValueAtTime(vol, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                osc.connect(gain);
+                gain.connect(c.destination);
+                osc.start(startTime);
+                osc.stop(startTime + duration + 0.05);
+            };
+
+            // Snare: шум через band-pass
+            const snare = (startTime, duration = 0.15, vol = 0.12) => {
+                const c = getCtx();
+                const bufferSize = c.sampleRate * duration;
+                const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const src = c.createBufferSource();
+                src.buffer = buffer;
+                const filter = c.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 3500;
+                filter.Q.value = 1.2;
+                const gain = c.createGain();
+                gain.gain.setValueAtTime(vol, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                src.connect(filter);
+                filter.connect(gain);
+                gain.connect(c.destination);
+                src.start(startTime);
+                src.stop(startTime + duration + 0.05);
+                // Тональная компонента снейра
+                const body = c.createOscillator();
+                const bodyG = c.createGain();
+                body.type = 'triangle';
+                body.frequency.setValueAtTime(200, startTime);
+                body.frequency.exponentialRampToValueAtTime(50, startTime + duration);
+                bodyG.gain.setValueAtTime(vol * 0.8, startTime);
+                bodyG.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.6);
+                body.connect(bodyG);
+                bodyG.connect(c.destination);
+                body.start(startTime);
+                body.stop(startTime + duration + 0.05);
+            };
+
+            // Kick: низкий синус с быстрым pitch-drop
+            const kick = (startTime, vol = 0.25) => {
+                const c = getCtx();
+                const osc = c.createOscillator();
+                const gain = c.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(160, startTime);
+                osc.frequency.exponentialRampToValueAtTime(35, startTime + 0.12);
+                gain.gain.setValueAtTime(vol, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+                osc.connect(gain);
+                gain.connect(c.destination);
+                osc.start(startTime);
+                osc.stop(startTime + 0.4);
+                // Клик-атака
+                const click = c.createOscillator();
+                const clickG = c.createGain();
+                click.type = 'square';
+                click.frequency.setValueAtTime(1500, startTime);
+                clickG.gain.setValueAtTime(0.06, startTime);
+                clickG.gain.exponentialRampToValueAtTime(0.001, startTime + 0.02);
+                click.connect(clickG);
+                clickG.connect(c.destination);
+                click.start(startTime);
+                click.stop(startTime + 0.03);
+            };
+
+            // Growl bass: перегруженный бас с гармониками
+            const growl = (startTime, duration, freq = 50, lfoRate = 4, vol = 0.12) => {
+                const c = getCtx();
+                const osc1 = c.createOscillator();
+                const osc2 = c.createOscillator();
+                const dist = c.createWaveShaperNode ? c.createWaveShaper() : null;
+                const filter = c.createBiquadFilter();
+                const lfo = c.createOscillator();
+                const lfoGain = c.createGain();
+                const gain = c.createGain();
+
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(freq, startTime);
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(freq * 1.01, startTime);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(300, startTime);
+                filter.Q.setValueAtTime(15, startTime);
+
+                lfo.type = 'sine';
+                lfo.frequency.setValueAtTime(lfoRate, startTime);
+                lfoGain.gain.setValueAtTime(250, startTime);
+
+                gain.gain.setValueAtTime(vol, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency);
+
+                const merger = c.createGain();
+                merger.gain.setValueAtTime(0.5, startTime);
+                osc1.connect(merger);
+                osc2.connect(merger);
+
+                if (dist) {
+                    const curve = new Float32Array(256);
+                    for (let i = 0; i < 256; i++) { const x = (i * 2) / 256 - 1; curve[i] = (Math.PI + 3) * x / (Math.PI + 3 * Math.abs(x)); }
+                    dist.curve = curve;
+                    merger.connect(dist);
+                    dist.connect(filter);
+                } else {
+                    merger.connect(filter);
+                }
+
+                filter.connect(gain);
+                gain.connect(c.destination);
+
+                osc1.start(startTime); osc2.start(startTime); lfo.start(startTime);
+                osc1.stop(startTime + duration + 0.05);
+                osc2.stop(startTime + duration + 0.05);
+                lfo.stop(startTime + duration + 0.05);
+            };
+
+            // Riser: восходящий шум для билдапа
+            const riser = (startTime, duration = 1.5, vol = 0.06) => {
+                const c = getCtx();
+                const osc = c.createOscillator();
+                const filter = c.createBiquadFilter();
+                const gain = c.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(80, startTime);
+                osc.frequency.exponentialRampToValueAtTime(2000, startTime + duration);
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(200, startTime);
+                filter.frequency.exponentialRampToValueAtTime(5000, startTime + duration);
+                filter.Q.setValueAtTime(3, startTime);
+                gain.gain.setValueAtTime(0.001, startTime);
+                gain.gain.linearRampToValueAtTime(vol, startTime + duration * 0.9);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(c.destination);
+                osc.start(startTime);
+                osc.stop(startTime + duration + 0.05);
+            };
+
+            return {
+                // ✓ Выполнение привычки — kick + wobble drop
+                complete() {
+                    try {
+                        const c = getCtx(), t = c.currentTime;
+                        kick(t, 0.2);
+                        subDrop(t, 0.3, 200, 50, 0.15);
+                        wobble(t + 0.15, 0.45, 65, 12, 0.13);
+                        snare(t + 0.12, 0.1, 0.06);
+                    } catch(e) {}
+                },
+
+                // 🎮 Чит-код — glitch wobble + riser
+                cheat() {
+                    try {
+                        const c = getCtx(), t = c.currentTime;
+                        // Глитч: быстрые kick-и
+                        kick(t, 0.12);
+                        kick(t + 0.08, 0.08);
+                        kick(t + 0.14, 0.06);
+                        // Короткий рейзер
+                        riser(t + 0.05, 0.4, 0.05);
+                        // Быстрый wobble
+                        wobble(t + 0.2, 0.35, 70, 20, 0.1);
+                        // Снейр как акцент
+                        snare(t + 0.35, 0.12, 0.08);
+                    } catch(e) {}
+                },
+
+                // 🏆 System Complete — полноценный дабстеп дроп
+                systemComplete() {
+                    try {
+                        const c = getCtx(), t = c.currentTime;
+
+                        // === БИЛДАП (0 - 1.5 сек) ===
+                        riser(t, 1.5, 0.07);
+                        // Нарастающие снейры (снейр-ролл)
+                        for (let i = 0; i < 8; i++) {
+                            const time = t + 0.8 + i * 0.08;
+                            snare(time, 0.06, 0.03 + i * 0.01);
+                        }
+                        // Нарастающий суб
+                        subDrop(t + 0.5, 1.0, 30, 60, 0.08);
+
+                        // === ДРОП (1.5 сек) — kick + wobble ===
+                        const drop = t + 1.5;
+                        kick(drop, 0.3);
+                        subDrop(drop, 0.5, 200, 28, 0.25);
+
+                        // Тяжёлый wobble bass
+                        wobble(drop + 0.1, 1.2, 50, 6, 0.18);
+                        // Growl второй слой
+                        growl(drop + 0.1, 1.2, 55, 5, 0.1);
+
+                        // Kick-паттерн
+                        kick(drop + 0.6, 0.2);
+                        snare(drop + 0.9, 0.18, 0.1);
+                        kick(drop + 1.2, 0.2);
+
+                        // === ВТОРОЙ ДРОП (2.8 сек) — усиленный ===
+                        const drop2 = t + 2.8;
+                        kick(drop2, 0.3);
+                        subDrop(drop2, 0.4, 250, 25, 0.25);
+                        wobble(drop2 + 0.1, 1.5, 45, 8, 0.2);
+                        growl(drop2 + 0.1, 1.5, 50, 7, 0.12);
+
+                        // Ритм второго дропа
+                        kick(drop2 + 0.5, 0.2);
+                        snare(drop2 + 0.75, 0.15, 0.1);
+                        kick(drop2 + 1.0, 0.15);
+                        snare(drop2 + 1.15, 0.12, 0.08);
+                        kick(drop2 + 1.3, 0.2);
+
+                        // === ФИНАЛ (4.5 сек) — замедление wobble ===
+                        const fin = t + 4.5;
+                        subDrop(fin, 1.0, 120, 20, 0.15);
+                        wobble(fin, 1.8, 40, 3, 0.12);
+                        // Затухающие снейры
+                        snare(fin + 0.5, 0.2, 0.06);
+                        snare(fin + 1.0, 0.25, 0.04);
+
+                    } catch(e) {}
+                },
+
+                // 😊 Настроение — суб-тон + лёгкий wobble
+                mood(value) {
+                    try {
+                        const c = getCtx(), t = c.currentTime;
+                        const freq = 40 + (value + 4) * 8;
+                        subDrop(t, 0.2, freq * 2, freq, 0.12);
+                        if (value >= 2) {
+                            wobble(t + 0.1, 0.3, freq, 10, 0.06);
+                        } else if (value <= -2) {
+                            growl(t + 0.05, 0.3, freq, 2, 0.06);
+                        }
+                    } catch(e) {}
+                }
+            };
+        })();
+        // Разблокировка AudioContext по первому тачу/клику (для мобильных)
+        document.addEventListener('click', function unlockAudio() {
+            try {
+                const c = new (window.AudioContext || window.webkitAudioContext)();
+                const b = c.createBuffer(1, 1, 22050);
+                const s = c.createBufferSource();
+                s.buffer = b; s.connect(c.destination); s.start(0);
+                document.removeEventListener('click', unlockAudio);
+            } catch(e) {}
+        }, { once: false });
 
         function init() { loadHabits(); loadMoodEntries(); renderParticles(); render(); updateTime(); setInterval(updateTime, 1000); }
         function loadHabits() { 
@@ -406,11 +818,19 @@
             });
             
             saveHabits();
-            showCheatConfirmation();
+            // Проверяем, все ли привычки за день выполнены
+            const todayHabits = habits.filter(h => isHabitDueToday(h) || isCompletedToday(h));
+            const allCompleted = todayHabits.length > 0 && todayHabits.every(h => isCompletedToday(h));
+            if (allCompleted) {
+                showAllCompleteEffect();
+            } else {
+                showCheatConfirmation();
+            }
             render();
         }
 
         function showCheatConfirmation() {
+            if (soundEnabled) CyberAudio.cheat();
             const o = document.createElement('div'); 
             o.className = 'praise-overlay';
             o.innerHTML = '<div class="praise-modal"><div class="praise-ring"><div class="praise-ring-inner" style="background:rgba(255, 140, 0, 0.2)"></div><span style="font-family:Orbitron;font-size:48px;font-weight:800;color:var(--orange);text-shadow:0 0 30px var(--orange)">🎮</span></div><h2 class="praise-text" style="color:var(--orange);text-shadow:0 0 40px var(--orange)">ЧИТ-КОД!</h2><div class="praise-subtitle" style="color:var(--orange)">ЗАПЛАНИРОВАННЫЙ ПРОПУСК</div></div>';
@@ -423,7 +843,14 @@
             const t = getTodayStr(); 
             habits = habits.map(h => h.id === id && !h.completedDates.includes(t) ? {...h, completedDates: [...h.completedDates, t]} : h); 
             saveHabits(); 
-            showPraise(); 
+            // Проверяем, все ли привычки за день выполнены
+            const todayHabits = habits.filter(h => isHabitDueToday(h) || isCompletedToday(h));
+            const allCompleted = todayHabits.length > 0 && todayHabits.every(h => isCompletedToday(h));
+            if (allCompleted) {
+                showAllCompleteEffect();
+            } else {
+                showPraise();
+            }
             render(); 
         }
         
@@ -441,6 +868,7 @@
         function deleteMoodEntry(id) { moodEntries = moodEntries.filter(e => e.id !== id); saveMoodEntries(); render(); }
 
         function showMoodConfirmation(v) {
+            if (soundEnabled) CyberAudio.mood(v);
             const c = MOOD_COLORS[v], l = MOOD_LABELS[v];
             const o = document.createElement('div'); o.className = 'praise-overlay';
             o.innerHTML = '<div class="praise-modal"><div class="praise-ring"><div class="praise-ring-inner" style="background:'+c+'20"></div><span style="font-family:Orbitron;font-size:48px;font-weight:800;color:'+c+';text-shadow:0 0 30px '+c+'">'+(v>0?'+':'')+v+'</span></div><h2 class="praise-text" style="color:'+c+';text-shadow:0 0 40px '+c+'">'+l+'</h2><div class="praise-subtitle" style="color:'+c+'">НАСТРОЕНИЕ ЗАПИСАНО</div></div>';
@@ -453,10 +881,79 @@
         function renderMoodChart() { if (moodEntries.length < 2) return ''; const recent = [...moodEntries].slice(-50); const w = 100 / recent.length; return recent.map((e, i) => { const y = 50 - (e.value * 12.5); const c = MOOD_COLORS[e.value]; return '<div style="position:absolute;left:'+(i*w)+'%;bottom:'+(50-y)+'%;width:'+w+'%;height:4px"><div style="width:8px;height:8px;background:'+c+';border-radius:50%;margin:auto;box-shadow:0 0 10px '+c+'"></div></div>'; }).join(''); }
 
         function showPraise() {
+            if (soundEnabled) CyberAudio.complete();
             const p = PRAISES[Math.floor(Math.random()*PRAISES.length)];
             const o = document.createElement('div'); o.className = 'praise-overlay';
             o.innerHTML = renderConfetti()+'<div class="praise-modal"><div class="praise-ring"><div class="praise-ring-inner"></div><span class="praise-check">✓</span></div><h2 class="praise-text">'+p+'</h2><div class="praise-subtitle">ПРОТОКОЛ ВЫПОЛНЕН</div></div>';
             document.body.appendChild(o); setTimeout(() => o.remove(), 1800); o.onclick = () => o.remove();
+        }
+
+        function showAllCompleteEffect() {
+            if (soundEnabled) CyberAudio.systemComplete();
+            const o = document.createElement('div');
+            o.className = 'all-complete-overlay';
+            o.innerHTML = `
+                <div class="all-complete-bg"></div>
+                <div class="all-complete-strobe"></div>
+                <div class="all-complete-scanlines"></div>
+                <div class="all-complete-glitch-lines"></div>
+                <div class="all-complete-content">
+                    <div class="all-complete-hex-ring">
+                        <div class="hex-ring-1"></div>
+                        <div class="hex-ring-2"></div>
+                        <div class="hex-ring-3"></div>
+                        <div class="all-complete-icon">◈</div>
+                        <div class="sparks-container">${renderSparks()}</div>
+                    </div>
+                    <div class="all-complete-glitch" data-text="SYSTEM COMPLETE">SYSTEM COMPLETE</div>
+                    <div class="all-complete-sub">ВСЕ ПРОТОКОЛЫ ВЫПОЛНЕНЫ</div>
+                    <div class="all-complete-stats">
+                        <div class="ac-stat"><span class="ac-stat-val">${habits.filter(h => isCompletedToday(h)).length}</span><span class="ac-stat-lbl">ВЫПОЛНЕНО</span></div>
+                        <div class="ac-stat-divider">◇</div>
+                        <div class="ac-stat"><span class="ac-stat-val">100%</span><span class="ac-stat-lbl">ПРОГРЕСС</span></div>
+                    </div>
+                    <div class="all-complete-bar">
+                        <div class="all-complete-bar-fill"></div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(o);
+            // Запускаем волны искр с интервалом
+            let waveCount = 0;
+            const waveInterval = setInterval(() => {
+                waveCount++;
+                if (waveCount >= 4 || !document.body.contains(o)) { clearInterval(waveInterval); return; }
+                const sc = o.querySelector('.sparks-container');
+                if (sc) sc.innerHTML = renderSparks();
+            }, 1800);
+            setTimeout(() => { o.classList.add('fade-out'); setTimeout(() => o.remove(), 500); }, 7000);
+            o.onclick = () => { clearInterval(waveInterval); o.classList.add('fade-out'); setTimeout(() => o.remove(), 500); };
+        }
+
+        function renderSparks() {
+            const colors = ['#00F5FF','#FF00E5','#00FF88','#FFE500','#FF3366','#7B68EE'];
+            let html = '';
+            for (let i = 0; i < 60; i++) {
+                const angle = (Math.PI * 2 * i / 60) + (Math.random() - 0.5) * 0.5;
+                const distance = 150 + Math.random() * 350;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                const size = 2 + Math.random() * 5;
+                const delay = Math.random() * 0.6;
+                const dur = 0.8 + Math.random() * 1.2;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const trail = Math.random() > 0.5;
+                html += '<div class="spark'+(trail ? ' spark-trail' : '')+'" style="'+
+                    '--tx:'+tx.toFixed(0)+'px;'+
+                    '--ty:'+ty.toFixed(0)+'px;'+
+                    'width:'+size+'px;height:'+size+'px;'+
+                    'background:'+color+';'+
+                    'box-shadow:0 0 '+(size*3)+'px '+color+', 0 0 '+(size*6)+'px '+color+';'+
+                    'animation-delay:'+delay.toFixed(2)+'s;'+
+                    'animation-duration:'+dur.toFixed(2)+'s;'+
+                '"></div>';
+            }
+            return html;
         }
         function renderConfetti() { const cc = ['#00F5FF','#FF00E5','#00FF88','#FFE500','#FF3366']; let h = '<div class="cyber-confetti">'; for (let i = 0; i < 80; i++) { const l = Math.random()*100, dl = Math.random()*0.5, du = 1+Math.random()*1.5, c = cc[Math.floor(Math.random()*cc.length)], s = 4+Math.random()*8; h += '<div class="confetti-piece" style="left:'+l+'%;animation-delay:'+dl+'s;animation-duration:'+du+'s;background:'+c+';box-shadow:0 0 10px '+c+';width:'+s+'px;height:'+s+'px"></div>'; } return h + '</div>'; }
         function renderParticles() { const c = document.createElement('div'); c.className = 'particle-field'; for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.left = Math.random()*100+'%'; p.style.top = Math.random()*100+'%'; p.style.width = p.style.height = (1+Math.random()*2)+'px'; p.style.animationDuration = (3+Math.random()*4)+'s'; p.style.animationDelay = Math.random()*5+'s'; c.appendChild(p); } document.getElementById('root').appendChild(c); }
@@ -613,9 +1110,15 @@
 
         function renderMain() {
             const th = habits.filter(h => isHabitDueToday(h) || isCompletedToday(h));
+            // Сортировка: невыполненные вверху, выполненные внизу
+            th.sort((a, b) => {
+                const aCompleted = isCompletedToday(a) ? 1 : 0;
+                const bCompleted = isCompletedToday(b) ? 1 : 0;
+                return aCompleted - bCompleted;
+            });
             const ct = th.filter(h => isCompletedToday(h)).length;
             const pr = th.length > 0 ? (ct/th.length)*100 : 0;
-            document.getElementById('root').innerHTML = '<div class="grid-overlay"></div><div class="vignette"></div><header class="app-header"><div class="header-row"><div class="logo-section"><div class="logo-icon" onclick="showMoodTracker()"><span class="logo-diamond">◈</span></div><div class="logo-text"><h1>НАНО<span>ПРИВЫЧКИ</span></h1><div class="logo-version">SYS.VERSION 2.1</div></div></div><button class="stats-btn" onclick="showDataMenu()" style="margin-right:12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5-5m0 0l5 5m-5-5v12"/></svg></button><button class="stats-btn" onclick="showHistory()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg></button></div><div class="time-display"><div class="time-value">00:00:00</div><div class="date-value">01.01.2024</div></div>'+(th.length > 0 ? '<div class="progress-container"><div class="progress-header"><span class="progress-label">ПРОГРЕСС СЕССИИ</span><span class="progress-value">'+ct+'/'+th.length+'</span></div><div class="progress-track"><div class="progress-bar" style="width:'+pr+'%"><div class="progress-glow"></div></div><div class="progress-markers">'+[0,25,50,75,100].map(p => '<div class="marker" style="left:'+p+'%"></div>').join('')+'</div></div><div class="progress-percent">'+Math.round(pr)+'%</div></div>' : '')+'</header><main class="main-content">'+(th.length === 0 ? '<div class="empty-state"><div class="empty-hex"><span>◇</span></div><h2>НЕТ АКТИВНЫХ ПРОТОКОЛОВ</h2><p>Инициализируйте новый протокол для начала работы</p></div>' : '<div class="habits-list">'+th.map((h,i) => renderHabitCard(h,i)).join('')+'</div>')+'</main><button class="fab" onclick="showAddModal()"><div class="fab-inner"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div><div class="fab-ring"></div></button>';
+            document.getElementById('root').innerHTML = '<div class="grid-overlay"></div><div class="vignette"></div><header class="app-header"><div class="header-row"><div class="logo-section"><div class="logo-icon" onclick="showMoodTracker()"><span class="logo-diamond">◈</span></div><div class="logo-text"><h1>НАНО<span>ПРИВЫЧКИ</span></h1><div class="logo-version">SYS.VERSION 2.1</div></div></div><button class="stats-btn" onclick="showDataMenu()" style="margin-right:12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5-5m0 0l5 5m-5-5v12"/></svg></button><button class="stats-btn" onclick="showHistory()" style="margin-right:12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg></button><button class="stats-btn" onclick="showSettings()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button></div><div class="time-display"><div class="time-value">00:00:00</div><div class="date-value">01.01.2024</div></div>'+(th.length > 0 ? '<div class="progress-container"><div class="progress-header"><span class="progress-label">ПРОГРЕСС СЕССИИ</span><span class="progress-value">'+ct+'/'+th.length+'</span></div><div class="progress-track"><div class="progress-bar" style="width:'+pr+'%"><div class="progress-glow"></div></div><div class="progress-markers">'+[0,25,50,75,100].map(p => '<div class="marker" style="left:'+p+'%"></div>').join('')+'</div></div><div class="progress-percent">'+Math.round(pr)+'%</div></div>' : '')+'</header><main class="main-content">'+(th.length === 0 ? '<div class="empty-state"><div class="empty-hex"><span>◇</span></div><h2>НЕТ АКТИВНЫХ ПРОТОКОЛОВ</h2><p>Инициализируйте новый протокол для начала работы</p></div>' : '<div class="habits-list">'+th.map((h,i) => renderHabitCard(h,i)).join('')+'</div>')+'</main><button class="fab" onclick="showAddModal()"><div class="fab-inner"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div><div class="fab-ring"></div></button>';
             renderParticles(); updateTime();
         }
 
@@ -684,6 +1187,45 @@
         function showImportConfirmDialog(d) { const hc = d.habits.length, cc = habits.length, ed = new Date(d.exportDate).toLocaleDateString('ru-RU'), ds = encodeURIComponent(JSON.stringify(d)); const m = document.createElement('div'); m.className = 'modal-overlay'; m.innerHTML = '<div class="modal-content" onclick="event.stopPropagation()"><div class="modal-header"><div class="modal-title"><span class="title-bracket">[</span>ИМПОРТ ДАННЫХ<span class="title-bracket">]</span></div><button class="close-btn" onclick="this.closest(\'.modal-overlay\').remove()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div style="margin:24px 0;padding:20px;border:1px solid var(--border);background:var(--bg-card)"><div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--text-dim)">ТЕКУЩИЕ:</span><span style="font-family:Orbitron;font-size:18px;color:var(--cyan);font-weight:700">'+cc+'</span></div><div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--text-dim)">В ФАЙЛЕ:</span><span style="font-family:Orbitron;font-size:18px;color:var(--cyan);font-weight:700">'+hc+'</span></div><div style="display:flex;justify-content:space-between;padding:12px 0"><span style="font-size:12px;color:var(--text-dim)">ДАТА:</span><span style="font-family:Orbitron;font-size:18px;color:var(--cyan);font-weight:700">'+ed+'</span></div></div><div style="text-align:center;color:var(--yellow);margin:20px 0;font-size:14px">⚠️ Выберите действие:</div><button class="submit-btn" onclick="confirmImportData(\''+ds+'\',\'merge\')" style="margin-bottom:12px"><span class="btn-text">ОБЪЕДИНИТЬ</span></button><button class="submit-btn" onclick="confirmImportData(\''+ds+'\',\'replace\')" style="background:transparent;color:#FF3366;border-color:#FF3366"><span class="btn-text">ЗАМЕНИТЬ ВСЕ</span></button></div>'; document.body.appendChild(m); m.onclick = () => m.remove(); }
         window.confirmImportData = function(ds, md) { try { const d = JSON.parse(decodeURIComponent(ds)); if (md === 'replace') habits = d.habits; else { const ei = new Set(habits.map(h => h.id)); habits = habits.concat(d.habits.filter(h => !ei.has(h.id))); } saveHabits(); render(); document.querySelector('.modal-overlay').remove(); showNotification('✅ Импортировано: '+d.habits.length,'success'); } catch(e) { showNotification('❌ Ошибка: '+e.message,'error'); } };
         function showNotification(m, t) { const n = document.createElement('div'); n.textContent = m; n.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:'+(t==='success'?'#00FF88':t==='error'?'#FF3366':'#00F5FF')+';color:#0a0a0f;padding:16px 24px;border-radius:8px;font-weight:700;z-index:10000;box-shadow:0 4px 20px rgba(0,0,0,0.5)'; document.body.appendChild(n); setTimeout(() => { n.style.opacity = '0'; n.style.transition = 'opacity 0.3s'; setTimeout(() => n.remove(), 300); }, 3000); }
+        window.showSettings = function() {
+            const m = document.createElement('div'); 
+            m.className = 'modal-overlay';
+            m.innerHTML = '<div class="modal-content" onclick="event.stopPropagation()">' +
+                '<div class="modal-header">' +
+                    '<div class="modal-title"><span class="title-bracket">[</span>НАСТРОЙКИ<span class="title-bracket">]</span></div>' +
+                    '<button class="close-btn" onclick="this.closest(\'.modal-overlay\').remove()">' +
+                        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
+                    '</button>' +
+                '</div>' +
+                '<div class="settings-list">' +
+                    '<div class="settings-item">' +
+                        '<div class="settings-item-info">' +
+                            '<div class="settings-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg></div>' +
+                            '<div>' +
+                                '<div class="settings-item-label">ЗВУКОВЫЕ ЭФФЕКТЫ</div>' +
+                                '<div class="settings-item-desc">Дабстеп при выполнении</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<label class="cyber-switch">' +
+                            '<input type="checkbox" id="soundToggle" ' + (soundEnabled ? 'checked' : '') + ' onchange="toggleSound(this.checked)">' +
+                            '<span class="cyber-switch-slider"></span>' +
+                        '</label>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+            document.body.appendChild(m);
+            m.onclick = () => m.remove();
+        };
+
+        window.toggleSound = function(enabled) {
+            soundEnabled = enabled;
+            localStorage.setItem('nanoSoundEnabled', enabled);
+            if (enabled) {
+                // Проигрываем тестовый звук при включении
+                CyberAudio.complete();
+            }
+        };
+
         window.showDataMenu = function() { const hc = habits.length, tc = habits.reduce((s,h) => s+h.completedDates.length, 0); const m = document.createElement('div'); m.className = 'modal-overlay'; m.innerHTML = '<div class="modal-content" onclick="event.stopPropagation()"><div class="modal-header"><div class="modal-title"><span class="title-bracket">[</span>УПРАВЛЕНИЕ ДАННЫМИ<span class="title-bracket">]</span></div><button class="close-btn" onclick="this.closest(\'.modal-overlay\').remove()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div style="display:flex;gap:12px;margin:24px 0"><div style="flex:1;padding:20px;border:1px solid var(--border);background:var(--bg-card);display:flex;align-items:center;gap:16px"><span style="font-size:32px;color:var(--cyan)">◈</span><div><div style="font-family:Orbitron;font-size:28px;font-weight:700;color:var(--text)">'+hc+'</div><div style="font-size:10px;color:var(--text-dim);margin-top:4px">ПРИВЫЧЕК</div></div></div><div style="flex:1;padding:20px;border:1px solid var(--border);background:var(--bg-card);display:flex;align-items:center;gap:16px"><span style="font-size:32px;color:var(--cyan)">◉</span><div><div style="font-family:Orbitron;font-size:28px;font-weight:700;color:var(--text)">'+tc+'</div><div style="font-size:10px;color:var(--text-dim);margin-top:4px">ВЫПОЛНЕНИЙ</div></div></div></div><button onclick="exportData();this.closest(\'.modal-overlay\').remove()" style="width:100%;display:flex;align-items:center;gap:20px;padding:20px;margin-bottom:12px;border:1px solid #00FF88;background:var(--bg-card);color:var(--text);cursor:pointer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00FF88" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5-5m0 0l5 5m-5-5v12"/></svg><div style="text-align:left"><div style="font-size:16px;font-weight:700">ЭКСПОРТ</div><div style="font-size:12px;color:var(--text-dim)">Сохранить в Downloads</div></div></button><button onclick="importData();this.closest(\'.modal-overlay\').remove()" style="width:100%;display:flex;align-items:center;gap:20px;padding:20px;border:1px solid #00F5FF;background:var(--bg-card);color:var(--text);cursor:pointer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00F5FF" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5 5m0 0l-5-5m5 5V3"/></svg><div style="text-align:left"><div style="font-size:16px;font-weight:700">ИМПОРТ</div><div style="font-size:12px;color:var(--text-dim)">Загрузить из файла</div></div></button></div>'; document.body.appendChild(m); m.onclick = () => m.remove(); };
 
         document.addEventListener('DOMContentLoaded', init);
